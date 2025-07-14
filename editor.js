@@ -3,6 +3,108 @@ var realBoardOffset
 var shownBoardOffset
 var dragBegin
 
+// File watching functionality
+var watchedFilePath = null
+var fileWatcher = null
+var lastFileContent = null
+
+function watchChessFile(filePath) {
+  // Stop any existing watcher
+  if (fileWatcher) {
+    clearInterval(fileWatcher)
+    fileWatcher = null
+  }
+  
+  watchedFilePath = filePath
+  console.log("Watching chess file:", filePath)
+  
+  fileWatcher = setInterval(() => {
+    if (watchedFilePath) {
+      loadChessFile(watchedFilePath)
+    }
+  }, 100)
+}
+
+function loadChessFile(filePath) {
+  // Use fetch to read the file
+  fetch(filePath)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      return response.text()
+    })
+    .then(content => {
+      // Only update if content has changed
+      if (content !== lastFileContent) {
+        lastFileContent = content
+        console.log("Loading new chess position from:", filePath)
+        loadChessPosition(content)
+      }
+    })
+    .catch(error => {
+      console.log("Error reading chess file:", error.message)
+    })
+}
+
+function loadChessPosition(positionString) {
+  if (!positionString || positionString.trim() === "") {
+    return
+  }
+  
+  // Parse the position string (v0;id,x,y;...)
+  if (positionString.substring(0, 2) !== "v0") {
+    console.log("Invalid position format")
+    return
+  }
+  
+  // Clear current pieces
+  pieces = []
+  
+  // Parse the position string
+  var data = positionString.substring(3)
+  var entries = data.split(";")
+  
+  for (var i = 0; i < entries.length; i++) {
+    var entry = entries[i].trim()
+    if (entry === "") continue
+    
+    var parts = entry.split(",")
+    if (parts.length !== 3) continue
+    
+    var pieceId = parseInt(parts[0])
+    var x = parseInt(parts[1])
+    var y = parseInt(parts[2])
+    
+    // Find the template for this piece ID
+    var template = null
+    for (var j = 0; j < templates.length; j++) {
+      if (templates[j].id === pieceId) {
+        template = templates[j]
+        break
+      }
+    }
+    
+    if (template) {
+      pieces.push(createPiece(x, y, template))
+    }
+  }
+  
+  // Update the board state
+  checkIfInCheck()
+  console.log("Loaded", pieces.length, "pieces")
+}
+
+function stopWatchingFile() {
+  if (fileWatcher) {
+    clearInterval(fileWatcher)
+    fileWatcher = null
+  }
+  watchedFilePath = null
+  lastFileContent = null
+  console.log("Stopped watching chess file")
+}
+
 function pieceAt(x, y) {
   for (var i = 0; i < pieces.length; i++) {
     if (pieces[i].x == x && pieces[i].y == y) return pieces[i]
@@ -810,6 +912,20 @@ function initButtons() {
     captureX2 = width / 4 * 3
     captureY1 = height / 4
     captureY2 = height / 4 * 3
+  }))
+  buttons.push(createCustomButton('watch', () => {
+    if (watchedFilePath) {
+      // Stop watching
+      stopWatchingFile()
+      alert("Stopped watching file")
+    } else {
+      // Start watching
+      var defaultPath = "/home/xander/dev/chessgate/chesspiler/output/fn_nand_chess.txt"
+      var filePath = prompt("Enter the path to the chess position file to watch:", defaultPath)
+      if (filePath && filePath.trim() !== "") {
+        watchChessFile(filePath.trim())
+      }
+    }
   }))
   editButton = createCustomButton('edit', () => {
     boardEditor = !boardEditor
