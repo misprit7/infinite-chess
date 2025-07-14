@@ -126,8 +126,6 @@ function preload() {
   }
   pawn_done = function(x1, y1, x2, y2, color, piece) {
     piece.state['dj'] = 0
-    if (color === WHITE && y2 >= 8) piece.p = wq
-    else if (color === BLACK && y2 <= 1) piece.p = bq
   }
   rook = function(x1, y1, x2, y2, color, piece) {
     if (!(x1 === x2 || y1 === y2)) return false
@@ -497,21 +495,6 @@ function draw() {
       image(pieces[i].p.image, pieces[i].x * (tileSize * shownScale) + shownBoardOffset.x, -pieces[i].y * (tileSize * shownScale) + shownBoardOffset.y, (tileSize * shownScale), (tileSize * shownScale));
     }
   }
-  strokeWeight(9 * shownScale)
-  stroke(255)
-  line(shownBoardOffset.x + -3 * (shownScale * tileSize), shownBoardOffset.y, shownBoardOffset.x + 13 * (shownScale * tileSize), shownBoardOffset.y)
-  stroke(0)
-  line(shownBoardOffset.x + -3 * (shownScale * tileSize), shownBoardOffset.y - 8 * (shownScale * tileSize), shownBoardOffset.x + 13 * (shownScale * tileSize), shownBoardOffset.y - 8 * (shownScale * tileSize))
-  stroke(255, 127, 39)
-  line(shownBoardOffset.x + 1 * (shownScale * tileSize), shownBoardOffset.y + 0 * (shownScale * tileSize), shownBoardOffset.x + 2 * (shownScale * tileSize), shownBoardOffset.y + 0 * (shownScale * tileSize))
-  line(shownBoardOffset.x + 1 * (shownScale * tileSize), shownBoardOffset.y + 0 * (shownScale * tileSize), shownBoardOffset.x + 1 * (shownScale * tileSize), shownBoardOffset.y - 1 * (shownScale * tileSize))
-  line(shownBoardOffset.x + 1 * (shownScale * tileSize), shownBoardOffset.y + -8 * (shownScale * tileSize), shownBoardOffset.x + 2 * (shownScale * tileSize), shownBoardOffset.y - 8 * (shownScale * tileSize))
-  line(shownBoardOffset.x + 1 * (shownScale * tileSize), shownBoardOffset.y + -8 * (shownScale * tileSize), shownBoardOffset.x + 1 * (shownScale * tileSize), shownBoardOffset.y - 7 * (shownScale * tileSize))
-  line(shownBoardOffset.x + 8 * (shownScale * tileSize), shownBoardOffset.y + 0 * (shownScale * tileSize), shownBoardOffset.x + 9 * (shownScale * tileSize), shownBoardOffset.y + 0 * (shownScale * tileSize))
-  line(shownBoardOffset.x + 9 * (shownScale * tileSize), shownBoardOffset.y + 0 * (shownScale * tileSize), shownBoardOffset.x + 9 * (shownScale * tileSize), shownBoardOffset.y - 1 * (shownScale * tileSize))
-  line(shownBoardOffset.x + 8 * (shownScale * tileSize), shownBoardOffset.y + -8 * (shownScale * tileSize), shownBoardOffset.x + 9 * (shownScale * tileSize), shownBoardOffset.y - 8 * (shownScale * tileSize))
-  line(shownBoardOffset.x + 9 * (shownScale * tileSize), shownBoardOffset.y + -8 * (shownScale * tileSize), shownBoardOffset.x + 9 * (shownScale * tileSize), shownBoardOffset.y - 7 * (shownScale * tileSize))
-
   if (draggingPiece) image(draggedPiece.p.image, winMouseX - (tileSize * shownScale) / 2, winMouseY - (tileSize * shownScale) / 2, (tileSize * shownScale), (tileSize * shownScale));
   for (var i = 0; i < lines.length; i++) {
     strokeWeight(11 * shownScale)
@@ -1325,7 +1308,7 @@ function mouseWheel(event) {
     var n = -0.15
   }
     realScale *= 1 + n;
-    if (realScale > 2 || realScale < 0.17) {
+    if (realScale > 2 || realScale < 0.05) {
       realScale /= 1 + n;
     } else {
       realBoardOffset.x -= (winMouseX - realBoardOffset.x) * n;
