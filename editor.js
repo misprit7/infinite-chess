@@ -920,7 +920,7 @@ function initButtons() {
       alert("Stopped watching file")
     } else {
       // Start watching
-      var defaultPath = "/home/xander/dev/chessgate/chesspiler/output/fn_nand_chess.txt"
+      var defaultPath = "/home/xander/dev/p-chessgate/chessgate/chesspiler/output/fn_nand_chess.txt"
       var filePath = prompt("Enter the path to the chess position file to watch:", defaultPath)
       if (filePath && filePath.trim() !== "") {
         watchChessFile(filePath.trim())
